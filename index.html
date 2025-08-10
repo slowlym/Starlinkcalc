@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>WI-FI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 420px;
+            margin: 48px auto 24px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(30,60,114,0.13);
+            padding: 36px 28px 28px 28px;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 22px;
+            font-size: 2em;
+            letter-spacing: 1px;
+        }
+        label {
+            display: block;
+            margin: 22px 0 8px 0;
+            color: #2a5298;
+            font-weight: 500;
+            font-size: 1.08em;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #b0bec5;
+            font-size: 1.13em;
+            margin-bottom: 10px;
+            transition: border 0.2s;
+        }
+        input[type="number"]:focus {
+            border: 1.5px solid #2a5298;
+            outline: none;
+        }
+        .result, .error {
+            margin-top: 22px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #e3f2fd;
+            color: #1565c0;
+            font-size: 1.12em;
+            box-shadow: 0 1px 4px rgba(21,101,192,0.05);
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .vecinos {
+            margin-top: 22px;
+        }
+        .vecino {
+            margin-bottom: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1.07em;
+        }
+        .vecino:last-child {
+            border-bottom: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #b0bec5;
+            font-size: 1em;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 500px) {
+            .container {
+                padding: 18px 6vw 18px 6vw;
+            }
+            h1 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de pagos</h1>
+        <div id="usdt-info" class="result">Cargando precio USDT...</div>
+        <label for="dispositivos">Dispositivos del vecino 4 (paga por dispositivo):</label>
+        <input type="number" id="dispositivos" min="0" value="0">
+        <div id="vecinos" class="vecinos"></div>
+        <div id="total" class="result"></div>
+        <div id="error" class="error" style="display:none;"></div>
+    </div>
+    <div class="footer">
+        &copy; 2025 SLOWLYM
+    </div>
+    <script>
+        const pagoMensual = 115;
+        const costoDispositivo = 8;
+        const vecinosBase = 3;
+        let precioUSDT = null;
+
+        async function obtenerPrecioUSDT() {
+            try {
+                const res = await fetch("https://criptoya.com/api/binancep2p/usdt/ves/1");
+                const data = await res.json();
+                precioUSDT = parseFloat(data.ask);
+                mostrarPrecioUSDT();
+                calcular();
+            } catch (e) {
+                document.getElementById("usdt-info").style.display = "none";
+                document.getElementById("error").style.display = "block";
+                document.getElementById("error").textContent = "No se pudo obtener el precio actual del USDT.";
+            }
+        }
+
+        function mostrarPrecioUSDT() {
+            // Fecha y hora actual del sistema
+            const ahora = new Date();
+            let fechaStr = ahora.toLocaleString("es-VE");
+            document.getElementById("usdt-info").innerHTML = 
+                `<b>Precio actual del USDT:</b> ${precioUSDT.toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2})} Bs<br>
+                <b>Última actualización:</b> ${fechaStr}`;
+        }
+
+        function calcular() {
+            const dispositivos = parseInt(document.getElementById("dispositivos").value) || 0;
+            const costoBasePorVecino = pagoMensual / vecinosBase;
+            const costoVecino4 = dispositivos * costoDispositivo;
+            const costos = [costoBasePorVecino, costoBasePorVecino, costoBasePorVecino, costoVecino4];
+
+            let vecinosDiv = "";
+            costos.forEach((costo, idx) => {
+                let costoBs = precioUSDT ? (costo * precioUSDT).toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2}) : "-";
+                vecinosDiv += `<div class="vecino"><b>Vecino ${idx+1}:</b> ${costo.toFixed(2)} USDT ≈ ${costoBs} Bs</div>`;
+            });
+            document.getElementById("vecinos").innerHTML = vecinosDiv;
+
+            let totalBs = precioUSDT ? (pagoMensual * precioUSDT).toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2}) : "-";
+            document.getElementById("total").innerHTML = `<b>Monto total del wifi:</b> ${pagoMensual.toFixed(2)} USDT ≈ ${totalBs} Bs`;
+        }
+
+        document.getElementById("dispositivos").addEventListener("input", calcular);
+
+        obtenerPrecioUSDT();
+    </script>
+</body>
+</html>
