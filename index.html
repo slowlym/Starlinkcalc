@@ -2,71 +2,86 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>WI-FI</title>
+    <title>Calculadora de pagos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
         .container {
-            max-width: 420px;
+            max-width: 440px;
             margin: 48px auto 24px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(30,60,114,0.13);
-            padding: 36px 28px 28px 28px;
+            background: rgba(255,255,255,0.97);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(44,83,100,0.18);
+            padding: 38px 30px 30px 30px;
+            animation: fadeIn 1.2s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
         }
         h1 {
             text-align: center;
-            color: #1e3c72;
-            margin-bottom: 22px;
-            font-size: 2em;
+            color: #0f2027;
+            margin-bottom: 24px;
+            font-size: 2.1em;
             letter-spacing: 1px;
+            text-shadow: 0 2px 8px #b0bec5;
         }
         label {
             display: block;
             margin: 22px 0 8px 0;
-            color: #2a5298;
-            font-weight: 500;
-            font-size: 1.08em;
+            color: #2c5364;
+            font-weight: 600;
+            font-size: 1.09em;
+            letter-spacing: 0.5px;
         }
         input[type="number"] {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             border-radius: 8px;
             border: 1.5px solid #b0bec5;
             font-size: 1.13em;
             margin-bottom: 10px;
-            transition: border 0.2s;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #f7fafc;
         }
         input[type="number"]:focus {
-            border: 1.5px solid #2a5298;
+            border: 1.5px solid #2c5364;
             outline: none;
+            box-shadow: 0 0 8px #2c536433;
         }
         .result, .error {
             margin-top: 22px;
             padding: 15px;
             border-radius: 10px;
-            background: #e3f2fd;
+            background: linear-gradient(90deg, #e3f2fd 60%, #f7fafc 100%);
             color: #1565c0;
-            font-size: 1.12em;
-            box-shadow: 0 1px 4px rgba(21,101,192,0.05);
+            font-size: 1.13em;
+            box-shadow: 0 1px 4px rgba(21,101,192,0.07);
+            transition: background 0.3s;
         }
         .error {
-            background: #ffebee;
+            background: linear-gradient(90deg, #ffebee 60%, #fff 100%);
             color: #c62828;
         }
         .vecinos {
             margin-top: 22px;
         }
         .vecino {
-            margin-bottom: 10px;
-            padding: 10px 0;
+            margin-bottom: 12px;
+            padding: 12px 0;
             border-bottom: 1px solid #e0e0e0;
-            font-size: 1.07em;
+            font-size: 1.09em;
+            background: linear-gradient(90deg, #f7fafc 80%, #e3f2fd 100%);
+            border-radius: 7px;
+            box-shadow: 0 1px 4px #e3f2fd44;
+            animation: fadeIn 0.7s;
         }
         .vecino:last-child {
             border-bottom: none;
@@ -78,6 +93,13 @@
             font-size: 1em;
             letter-spacing: 1px;
         }
+        .highlight {
+            background: linear-gradient(90deg, #cfd8dc 60%, #e3f2fd 100%);
+            color: #0f2027;
+            font-weight: bold;
+            border-left: 4px solid #2c5364;
+            padding-left: 10px;
+        }
         @media (max-width: 500px) {
             .container {
                 padding: 18px 6vw 18px 6vw;
@@ -86,14 +108,20 @@
                 font-size: 1.3em;
             }
         }
+        /* Efecto hover */
+        .vecino:hover {
+            background: linear-gradient(90deg, #bbdefb 60%, #e3f2fd 100%);
+            transform: scale(1.02);
+            transition: all 0.2s;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Calculadora de pagos</h1>
         <div id="usdt-info" class="result">Cargando precio USDT...</div>
-        <label for="dispositivos">Dispositivos del vecino 4 (paga por dispositivo):</label>
-        <input type="number" id="dispositivos" min="0" value="0">
+        <label for="codigos">Códigos del vecino 4 (paga por código):</label>
+        <input type="number" id="codigos" min="0" value="0">
         <div id="vecinos" class="vecinos"></div>
         <div id="total" class="result"></div>
         <div id="error" class="error" style="display:none;"></div>
@@ -103,9 +131,15 @@
     </div>
     <script>
         const pagoMensual = 115;
-        const costoDispositivo = 8;
+        const precioPorCodigo = 5;
         const vecinosBase = 3;
         let precioUSDT = null;
+        const nombres = [
+            "Sra. America",
+            "Sra. Carolina",
+            "Sr. Jesus",
+            "Sr. Hector"
+        ];
 
         async function obtenerPrecioUSDT() {
             try {
@@ -122,7 +156,6 @@
         }
 
         function mostrarPrecioUSDT() {
-            // Fecha y hora actual del sistema
             const ahora = new Date();
             let fechaStr = ahora.toLocaleString("es-VE");
             document.getElementById("usdt-info").innerHTML = 
@@ -131,15 +164,31 @@
         }
 
         function calcular() {
-            const dispositivos = parseInt(document.getElementById("dispositivos").value) || 0;
-            const costoBasePorVecino = pagoMensual / vecinosBase;
-            const costoVecino4 = dispositivos * costoDispositivo;
-            const costos = [costoBasePorVecino, costoBasePorVecino, costoBasePorVecino, costoVecino4];
-
+            const codigos = parseInt(document.getElementById("codigos").value) || 0;
+            const pagoVecino4 = codigos * precioPorCodigo;
+            // El monto a repartir entre los otros vecinos
+            const montoRestante = pagoMensual - pagoVecino4;
             let vecinosDiv = "";
+            let costos = [];
+
+            if (montoRestante < 0) {
+                document.getElementById("vecinos").innerHTML = "";
+                document.getElementById("total").innerHTML = "";
+                document.getElementById("error").style.display = "block";
+                document.getElementById("error").textContent = "El monto de códigos supera el total del wifi.";
+                return;
+            } else {
+                document.getElementById("error").style.display = "none";
+            }
+
+            // Cálculo para vecinos 1-3
+            const costoBasePorVecino = montoRestante / vecinosBase;
+            costos = [costoBasePorVecino, costoBasePorVecino, costoBasePorVecino, pagoVecino4];
+
             costos.forEach((costo, idx) => {
                 let costoBs = precioUSDT ? (costo * precioUSDT).toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2}) : "-";
-                vecinosDiv += `<div class="vecino"><b>Vecino ${idx+1}:</b> ${costo.toFixed(2)} USDT ≈ ${costoBs} Bs</div>`;
+                let clase = idx === 3 ? "vecino highlight" : "vecino";
+                vecinosDiv += `<div class="${clase}"><b>${nombres[idx]}:</b> ${costo.toFixed(2)} USDT ≈ ${costoBs} Bs</div>`;
             });
             document.getElementById("vecinos").innerHTML = vecinosDiv;
 
@@ -147,9 +196,7 @@
             document.getElementById("total").innerHTML = `<b>Monto total del wifi:</b> ${pagoMensual.toFixed(2)} USDT ≈ ${totalBs} Bs`;
         }
 
-        document.getElementById("dispositivos").addEventListener("input", calcular);
+        document.getElementById("codigos").addEventListener("input", calcular);
 
         obtenerPrecioUSDT();
     </script>
-</body>
-</html>
