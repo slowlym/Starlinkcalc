@@ -18,9 +18,17 @@
                     <div class="subtitle">VIBORAL FUNDICIÓN</div>
                 </div>
             </div>
-            <button id="refresh-btn" class="btn icon-btn" title="Actualizar precio" aria-label="Actualizar precio">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 1 1 0 6"/></svg>
-            </button>
+
+            <div class="actions">
+                <button id="refresh-btn" class="btn icon-btn" title="Actualizar precio" aria-label="Actualizar precio">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 1 1 0 6"/></svg>
+                </button>
+
+                <!-- Botón: abre la página de Binance P2P (interceptado para mostrar confirmación) -->
+                <a id="binance-btn" class="btn binance-btn" href="https://p2p.binance.com/es/trade/all-payments/USDT?fiat=VES" target="_blank" rel="noopener">
+                    Ver en Binance P2P
+                </a>
+            </div>
         </header>
 
         <section class="panel">
@@ -39,34 +47,84 @@
         </footer>
     </main>
 
+    <!-- Confirm modal -->
+    <div id="confirm-modal" class="modal-backdrop" aria-hidden="true" style="display:none;">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+            <h3 id="modal-title">Referencia de precio</h3>
+            <p id="modal-desc">Toma como referencia el primer precio publicado (el anuncio superior) como el precio oficial en Binance P2P y multiplícalo por 115 para posteriormente dividirlo entre 4. La cantidad final será tu total a pagar. ¿Deseas abrir Binance ahora?</p>
+
+            <!-- Imagen de ejemplo añadida -->
+            <figure class="modal-sample-wrap" aria-hidden="true">
+                <img src="modal-sample.png" alt="Ejemplo: primer anuncio en Binance P2P" class="modal-sample" width="300" height="120" loading="lazy">
+                <figcaption class="modal-sample-caption">Ejemplo: primer anuncio (precio destacado)</figcaption>
+            </figure>
+
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn">Cancelar</button>
+                <button id="modal-confirm" class="btn binance-cta">Ir a Binance P2P</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 
     <!-- micro-script: enlaza el botón de refrescar con la función existente obtenerPrecioUSDT()
-         añade la animación visual al actualizar -->
+         y maneja la ventana de confirmación antes de abrir Binance -->
     <script>
     (function(){
         const btn = document.getElementById('refresh-btn');
         const info = document.getElementById('usdt-info');
-        if (!btn || !info) return;
-        btn.addEventListener('click', () => {
-            // pulso visual en el botón
-            btn.classList.add('btn-press');
-            setTimeout(()=>btn.classList.remove('btn-press'), 220);
+        if (btn && info) {
+            btn.addEventListener('click', () => {
+                btn.classList.add('btn-press');
+                setTimeout(()=>btn.classList.remove('btn-press'), 220);
+                info.classList.remove('price-update');
+                void info.offsetWidth;
+                info.classList.add('price-update');
+                if (typeof obtenerPrecioUSDT === 'function') obtenerPrecioUSDT();
+            });
+        }
 
-            // animación de actualización en la tarjeta de precio
-            info.classList.remove('price-update');
-            // forzar reflow para reiniciar la animación
-            void info.offsetWidth;
-            info.classList.add('price-update');
+        // Modal logic for Binance link
+        const binanceLink = document.getElementById('binance-btn');
+        const modal = document.getElementById('confirm-modal');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
 
-            // llamar a la función definida en app.js
-            if (typeof obtenerPrecioUSDT === 'function') {
-                obtenerPrecioUSDT();
-            } else {
-                // si app.js aún no se ha cargado o tiene otro nombre, refresca la página
-                console.warn('obtenerPrecioUSDT no encontrada');
-            }
-        });
+        function showModal() {
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden','false');
+            // focus primer botón
+            modalCancel.focus();
+            document.body.style.overflow = 'hidden';
+        }
+        function hideModal() {
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden','true');
+            document.body.style.overflow = '';
+        }
+
+        if (binanceLink && modal && modalCancel && modalConfirm) {
+            binanceLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal();
+            });
+            modalCancel.addEventListener('click', hideModal);
+            modalConfirm.addEventListener('click', () => {
+                const href = binanceLink.href;
+                // abrir en nueva pestaña
+                window.open(href, '_blank', 'noopener');
+                hideModal();
+            });
+            // cerrar con Esc
+            window.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Escape' && modal.style.display !== 'none') hideModal();
+            });
+            // click fuera para cerrar
+            modal.addEventListener('click', (ev) => {
+                if (ev.target === modal) hideModal();
+            });
+        }
     })();
     </script>
 </body>
