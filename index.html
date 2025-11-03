@@ -1,202 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Calculadora de pagos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 440px;
-            margin: 48px auto 24px auto;
-            background: rgba(255,255,255,0.97);
-            border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(44,83,100,0.18);
-            padding: 38px 30px 30px 30px;
-            animation: fadeIn 1.2s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(40px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        h1 {
-            text-align: center;
-            color: #0f2027;
-            margin-bottom: 24px;
-            font-size: 2.1em;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 8px #b0bec5;
-        }
-        label {
-            display: block;
-            margin: 22px 0 8px 0;
-            color: #2c5364;
-            font-weight: 600;
-            font-size: 1.09em;
-            letter-spacing: 0.5px;
-        }
-        input[type="number"] {
-            width: 100%;
-            padding: 13px;
-            border-radius: 8px;
-            border: 1.5px solid #b0bec5;
-            font-size: 1.13em;
-            margin-bottom: 10px;
-            transition: border 0.2s, box-shadow 0.2s;
-            background: #f7fafc;
-        }
-        input[type="number"]:focus {
-            border: 1.5px solid #2c5364;
-            outline: none;
-            box-shadow: 0 0 8px #2c536433;
-        }
-        .result, .error {
-            margin-top: 22px;
-            padding: 15px;
-            border-radius: 10px;
-            background: linear-gradient(90deg, #e3f2fd 60%, #f7fafc 100%);
-            color: #1565c0;
-            font-size: 1.13em;
-            box-shadow: 0 1px 4px rgba(21,101,192,0.07);
-            transition: background 0.3s;
-        }
-        .error {
-            background: linear-gradient(90deg, #ffebee 60%, #fff 100%);
-            color: #c62828;
-        }
-        .vecinos {
-            margin-top: 22px;
-        }
-        .vecino {
-            margin-bottom: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 1.09em;
-            background: linear-gradient(90deg, #f7fafc 80%, #e3f2fd 100%);
-            border-radius: 7px;
-            box-shadow: 0 1px 4px #e3f2fd44;
-            animation: fadeIn 0.7s;
-        }
-        .vecino:last-child {
-            border-bottom: none;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #b0bec5;
-            font-size: 1em;
-            letter-spacing: 1px;
-        }
-        .highlight {
-            background: linear-gradient(90deg, #cfd8dc 60%, #e3f2fd 100%);
-            color: #0f2027;
-            font-weight: bold;
-            border-left: 4px solid #2c5364;
-            padding-left: 10px;
-        }
-        @media (max-width: 500px) {
-            .container {
-                padding: 18px 6vw 18px 6vw;
-            }
-            h1 {
-                font-size: 1.3em;
-            }
-        }
-        /* Efecto hover */
-        .vecino:hover {
-            background: linear-gradient(90deg, #bbdefb 60%, #e3f2fd 100%);
-            transform: scale(1.02);
-            transition: all 0.2s;
-        }
-    </style>
+    <meta charset="utf-8">
+    <title>VIBORAL FUNDICIÓN — Calculadora</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Calculadora de pagos</h1>
-        <div id="usdt-info" class="result">Cargando precio USDT...</div>
-        <label for="codigos">Códigos del vecino 4 (paga por código):</label>
-        <input type="number" id="codigos" min="0" value="0">
-        <div id="vecinos" class="vecinos"></div>
-        <div id="total" class="result"></div>
-        <div id="error" class="error" style="display:none;"></div>
-    </div>
-    <div class="footer">
-        &copy; 2025 SLOWLYM
-    </div>
+    <main class="page">
+        <header class="topbar">
+            <div class="brand">
+                <!-- reemplaza por la imagen que adjuntaste: logo-cobra.png -->
+                <img src="logo-cobra.png" alt="Logo Cobra" class="logo-image" width="56" height="56" loading="lazy">
+                <div>
+                    <div class="title">GESTOR DE PAGOS</div>
+                    <div class="subtitle">VIBORAL FUNDICIÓN</div>
+                </div>
+            </div>
+            <button id="refresh-btn" class="btn icon-btn" title="Actualizar precio" aria-label="Actualizar precio">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 1 1 0 6"/></svg>
+            </button>
+        </header>
+
+        <section class="panel">
+            <div id="usdt-info" class="price-card result">Cargando precio USDT...</div>
+
+            <div class="cards">
+                <div id="vecinos" class="vecinos"></div>
+                <div id="total" class="result total-card"></div>
+            </div>
+
+            <div id="error" class="error" style="display:none;"></div>
+        </section>
+
+        <footer class="footer">
+            <small>&copy; 2025 SLOWLYM — USDT → VES</small>
+        </footer>
+    </main>
+
+    <script src="app.js"></script>
+
+    <!-- micro-script: enlaza el botón de refrescar con la función existente obtenerPrecioUSDT()
+         añade la animación visual al actualizar -->
     <script>
-        const pagoMensual = 115;
-        const precioPorCodigo = 5;
-        const vecinosBase = 3;
-        let precioUSDT = null;
-        const nombres = [
-            "Sra. America",
-            "Sra. Carolina",
-            "Sr. Jesus",
-            "Sr. Hector"
-        ];
+    (function(){
+        const btn = document.getElementById('refresh-btn');
+        const info = document.getElementById('usdt-info');
+        if (!btn || !info) return;
+        btn.addEventListener('click', () => {
+            // pulso visual en el botón
+            btn.classList.add('btn-press');
+            setTimeout(()=>btn.classList.remove('btn-press'), 220);
 
-        async function obtenerPrecioUSDT() {
-            try {
-                const res = await fetch("https://criptoya.com/api/binancep2p/usdt/ves/1");
-                const data = await res.json();
-                precioUSDT = parseFloat(data.ask);
-                mostrarPrecioUSDT();
-                calcular();
-            } catch (e) {
-                document.getElementById("usdt-info").style.display = "none";
-                document.getElementById("error").style.display = "block";
-                document.getElementById("error").textContent = "No se pudo obtener el precio actual del USDT.";
-            }
-        }
+            // animación de actualización en la tarjeta de precio
+            info.classList.remove('price-update');
+            // forzar reflow para reiniciar la animación
+            void info.offsetWidth;
+            info.classList.add('price-update');
 
-        function mostrarPrecioUSDT() {
-            const ahora = new Date();
-            let fechaStr = ahora.toLocaleString("es-VE");
-            document.getElementById("usdt-info").innerHTML = 
-                `<b>Precio actual del USDT:</b> ${precioUSDT.toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2})} Bs<br>
-                <b>Última actualización:</b> ${fechaStr}`;
-        }
-
-        function calcular() {
-            const codigos = parseInt(document.getElementById("codigos").value) || 0;
-            const pagoVecino4 = codigos * precioPorCodigo;
-            // El monto a repartir entre los otros vecinos
-            const montoRestante = pagoMensual - pagoVecino4;
-            let vecinosDiv = "";
-            let costos = [];
-
-            if (montoRestante < 0) {
-                document.getElementById("vecinos").innerHTML = "";
-                document.getElementById("total").innerHTML = "";
-                document.getElementById("error").style.display = "block";
-                document.getElementById("error").textContent = "El monto de códigos supera el total del wifi.";
-                return;
+            // llamar a la función definida en app.js
+            if (typeof obtenerPrecioUSDT === 'function') {
+                obtenerPrecioUSDT();
             } else {
-                document.getElementById("error").style.display = "none";
+                // si app.js aún no se ha cargado o tiene otro nombre, refresca la página
+                console.warn('obtenerPrecioUSDT no encontrada');
             }
-
-            // Cálculo para vecinos 1-3
-            const costoBasePorVecino = montoRestante / vecinosBase;
-            costos = [costoBasePorVecino, costoBasePorVecino, costoBasePorVecino, pagoVecino4];
-
-            costos.forEach((costo, idx) => {
-                let costoBs = precioUSDT ? (costo * precioUSDT).toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2}) : "-";
-                let clase = idx === 3 ? "vecino highlight" : "vecino";
-                vecinosDiv += `<div class="${clase}"><b>${nombres[idx]}:</b> ${costo.toFixed(2)} USDT ≈ ${costoBs} Bs</div>`;
-            });
-            document.getElementById("vecinos").innerHTML = vecinosDiv;
-
-            let totalBs = precioUSDT ? (pagoMensual * precioUSDT).toLocaleString("es-VE", {minimumFractionDigits:2, maximumFractionDigits:2}) : "-";
-            document.getElementById("total").innerHTML = `<b>Monto total del wifi:</b> ${pagoMensual.toFixed(2)} USDT ≈ ${totalBs} Bs`;
-        }
-
-        document.getElementById("codigos").addEventListener("input", calcular);
-
-        obtenerPrecioUSDT();
+        });
+    })();
     </script>
+</body>
+</html>
