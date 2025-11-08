@@ -1,11 +1,12 @@
 const pagoMensual = 115;
-const vecinosBase = 4;
+const vecinosBase = 5; // actualizado: ahora 5 vecinos (se agregó Sr. Hector)
 let precioUSDT = null;
 const nombres = [
     "Sra. America",
     "Sra. Carolina",
     "Sr. Jesus",
-    "Sr. Jose Gregorio"
+    "Sr. Jose Gregorio",
+    "Sr. Hector"
 ];
 
 async function fetchCriptoYa() {

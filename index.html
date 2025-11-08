@@ -54,7 +54,18 @@
             <p id="modal-desc">Toma como referencia el primer precio publicado (el anuncio superior) como el precio oficial en Binance P2P y multiplícalo por 115 para posteriormente dividirlo entre 4. La cantidad final será tu total a pagar. ¿Deseas abrir Binance ahora?</p>
 
             <!-- Imagen de ejemplo añadida -->
-            <figure class="modal-sample-wrap" aria-hidden="true">
+            <figure class="modal-sam            // ...existing code...
+            const pagoMensual = 115;
+            const vecinosBase = 5; // actualizado: ahora 5 vecinos (se agregó Sr. Hector)
+            let precioUSDT = null;
+            const nombres = [
+                "Sra. America",
+                "Sra. Carolina",
+                "Sr. Jesus",
+                "Sr. Jose Gregorio",
+                "Sr. Hector"
+            ];
+            // ...existing code...ple-wrap" aria-hidden="true">
                 <img src="modal-sample.png" alt="Ejemplo: primer anuncio en Binance P2P" class="modal-sample" width="300" height="120" loading="lazy">
                 <figcaption class="modal-sample-caption">Ejemplo: primer anuncio (precio destacado)</figcaption>
             </figure>
